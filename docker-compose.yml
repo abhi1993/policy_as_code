@@ -1,0 +1,35 @@
+services:
+  policy_service:
+    build: policy_service/.
+    ports:
+      - "3000:3000"
+    environment:
+      - MONGO_URI=mongodb://mongo:27017
+    depends_on:
+      mongo:
+        condition: service_healthy
+
+  auth_service:
+    build: auth_service/.
+    ports:
+      - "3001:3001"
+    environment:
+      - POLICY_SERVICE_URL=http://policy_service:3000
+    depends_on:
+      mongo:
+        condition: service_healthy
+
+  mongo:
+    image: mongo:7
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: [ "CMD", "mongosh", "--eval", "db.adminCommand('ping')" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  mongo_data:
