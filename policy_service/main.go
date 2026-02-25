@@ -40,7 +40,16 @@ func main() {
 	}
 	_, err = collection.Indexes().CreateOne(context.Background(), indexModel)
 	if err != nil {
-		log.Fatal("failed to create index:", err)
+		log.Fatal("failed to create index for name:", err)
+	}
+
+	indexModelAuthor := mongo.IndexModel{
+		Keys:    bson.D{{Key: "author", Value: 1}},
+		Options: options.Index().SetUnique(true),
+	}
+	_, err = collection.Indexes().CreateOne(context.Background(), indexModelAuthor)
+	if err != nil {
+		log.Fatal("failed to create index for author:", err)
 	}
 
 	repo := &PolicyRepository{collection: collection, indexModel: &indexModel}
